@@ -210,11 +210,16 @@ class Woo_AI_Chat_REST_Endpoints {
             $welcome .= "\n\nI can see you have {$order_count} recent order(s). Your most recent order #{$latest_order['order_number']} is currently: {$latest_order['status']}.";
         }
 
+        // Generate a secure random token for this session (works for guests and logged-in users)
+        $session_token = bin2hex(random_bytes(32));
+        $session_data['token'] = $session_token;
+        set_transient('woo_ai_chat_' . $session_id, $session_data, 2 * HOUR_IN_SECONDS);
+
         return new WP_REST_Response(array(
             'success' => true,
             'session_id' => $session_id,
             'welcome_message' => $welcome,
-            'nonce' => wp_create_nonce('woo_ai_chat_' . $session_id),
+            'nonce' => $session_token, // Use our custom token instead of WP nonce
             'has_orders' => !empty($context['orders']),
         ));
     }
@@ -314,29 +319,29 @@ class Woo_AI_Chat_REST_Endpoints {
     }
 
     /**
-     * Verify session and nonce
+     * Verify session and token
      *
      * @param WP_REST_Request $request Request object
-     * @return bool Whether request is authorized
+     * @return bool|WP_Error Whether request is authorized
      */
     public function verify_session($request) {
         $params = $request->get_json_params();
         $session_id = sanitize_text_field($params['session_id'] ?? '');
 
         if (empty($session_id)) {
-            return false;
+            return new WP_Error('missing_session', 'Session ID is required', array('status' => 400));
         }
 
         // Verify session exists
         $session = get_transient('woo_ai_chat_' . $session_id);
         if (!$session) {
-            return false;
+            return new WP_Error('invalid_session', 'Session expired or invalid. Please refresh and start a new chat.', array('status' => 401));
         }
 
-        // Verify nonce
-        $nonce = $request->get_header('X-WP-Nonce');
-        if (!wp_verify_nonce($nonce, 'woo_ai_chat_' . $session_id)) {
-            return false;
+        // Verify custom token using our own header (X-Chat-Token) to bypass WordPress nonce system
+        $token = $request->get_header('X-Chat-Token');
+        if (empty($token) || !isset($session['token']) || !hash_equals($session['token'], $token)) {
+            return new WP_Error('invalid_token', 'Invalid session token. Please refresh and start a new chat.', array('status' => 401));
         }
 
         return true;
@@ -346,25 +351,25 @@ class Woo_AI_Chat_REST_Endpoints {
      * Verify session for upload (from form data)
      *
      * @param WP_REST_Request $request Request object
-     * @return bool Whether request is authorized
+     * @return bool|WP_Error Whether request is authorized
      */
     public function verify_session_for_upload($request) {
         $session_id = sanitize_text_field($request->get_param('session_id') ?? '');
 
         if (empty($session_id)) {
-            return false;
+            return new WP_Error('missing_session', 'Session ID is required', array('status' => 400));
         }
 
         // Verify session exists
         $session = get_transient('woo_ai_chat_' . $session_id);
         if (!$session) {
-            return false;
+            return new WP_Error('invalid_session', 'Session expired or invalid', array('status' => 401));
         }
 
-        // Verify nonce
-        $nonce = $request->get_header('X-WP-Nonce');
-        if (!wp_verify_nonce($nonce, 'woo_ai_chat_' . $session_id)) {
-            return false;
+        // Verify custom token using our own header (X-Chat-Token) to bypass WordPress nonce system
+        $token = $request->get_header('X-Chat-Token');
+        if (empty($token) || !isset($session['token']) || !hash_equals($session['token'], $token)) {
+            return new WP_Error('invalid_token', 'Invalid session token', array('status' => 401));
         }
 
         return true;

@@ -34,6 +34,7 @@ class Woo_AI_Chat_Admin_Settings {
         add_action('admin_init', array($this, 'handle_export'));
         add_action('admin_init', array($this, 'handle_delete_lead'));
         add_action('wp_ajax_woo_ai_chat_test_api', array($this, 'ajax_test_api'));
+        add_action('wp_ajax_woo_ai_chat_save_api_key', array($this, 'ajax_save_api_key'));
         add_action('wp_ajax_woo_ai_chat_update_status', array($this, 'ajax_update_status'));
         add_action('wp_ajax_woo_ai_chat_delete_conversation', array($this, 'ajax_delete_conversation'));
         add_action('wp_dashboard_setup', array($this, 'add_dashboard_widget'));
@@ -163,22 +164,41 @@ class Woo_AI_Chat_Admin_Settings {
      * Sanitize API key before saving
      */
     public function sanitize_api_key($value) {
+        // If empty, KEEP the existing key (don't overwrite with nothing)
         if (empty($value)) {
-            return '';
-        }
-
-        // If user submitted the placeholder dots, keep existing key
-        if (strpos($value, "\u{2022}") !== false || $value === '••••••••••••••••') {
             return get_option('woo_ai_chat_api_key', '');
         }
 
-        // If it's a new raw API key, encrypt it
-        if (strpos($value, 'sk-ant-') === 0) {
+        // Trim whitespace
+        $value = trim($value);
+
+        // If still empty after trim, keep existing
+        if (empty($value)) {
+            return get_option('woo_ai_chat_api_key', '');
+        }
+
+        // If user submitted placeholder dots, keep existing key
+        if (preg_match('/^[•\.]+$/', $value) || strpos($value, '•') !== false) {
+            return get_option('woo_ai_chat_api_key', '');
+        }
+
+        // If already in our V3 format, keep it
+        if (strpos($value, 'V3_') === 0) {
+            return $value;
+        }
+
+        // If already in WOOAI format, keep it
+        if (strpos($value, 'WOOAI_') === 0) {
+            return $value;
+        }
+
+        // If it's a raw API key, encrypt it
+        if (strpos($value, 'sk-') === 0) {
             return Woo_AI_Chat_API::encrypt($value);
         }
 
-        // Already encrypted or empty
-        return $value;
+        // For anything else, keep existing key (don't save garbage)
+        return get_option('woo_ai_chat_api_key', '');
     }
 
     /**
@@ -192,18 +212,21 @@ class Woo_AI_Chat_Admin_Settings {
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
 
+        // Add timestamp to bust cache
+        $version = WOO_AI_CHAT_VERSION . '.' . time();
+
         wp_enqueue_style(
             'woo-ai-chat-admin',
             WOO_AI_CHAT_URL . 'assets/css/admin.css',
             array(),
-            WOO_AI_CHAT_VERSION
+            $version
         );
 
         wp_enqueue_script(
             'woo-ai-chat-admin',
             WOO_AI_CHAT_URL . 'assets/js/admin.js',
             array('jquery', 'wp-color-picker'),
-            WOO_AI_CHAT_VERSION,
+            $version,
             true
         );
 
@@ -247,19 +270,25 @@ class Woo_AI_Chat_Admin_Settings {
                                 <label for="woo_ai_chat_api_key"><?php _e('Anthropic API Key', 'woo-ai-customer-service'); ?></label>
                             </th>
                             <td>
-                                <input type="password" id="woo_ai_chat_api_key" name="woo_ai_chat_api_key"
-                                    value="<?php echo $has_api_key ? '••••••••••••••••' : ''; ?>"
+                                <input type="text" id="woo_ai_chat_api_key" name="woo_ai_chat_api_key"
+                                    value=""
                                     class="regular-text"
                                     placeholder="sk-ant-api03-..."
-                                    autocomplete="new-password">
-                                <p class="description">
+                                    autocomplete="off"
+                                    style="font-family: monospace;">
+                                <button type="button" id="save-api-key" class="button button-primary" style="margin-left: 10px;">
+                                    <?php _e('Save API Key', 'woo-ai-customer-service'); ?>
+                                </button>
+                                <div id="api-key-status" style="margin-top: 10px;">
                                     <?php if ($has_api_key): ?>
-                                        <span class="dashicons dashicons-yes-alt" style="color: green;"></span>
-                                        <?php _e('API key is configured. Enter a new key to replace it.', 'woo-ai-customer-service'); ?>
+                                        <span style="color: green; font-weight: bold;">✓ API key is saved</span>
                                     <?php else: ?>
-                                        <?php _e('Get your API key from', 'woo-ai-customer-service'); ?>
-                                        <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>
+                                        <span style="color: #999;">No API key saved yet</span>
                                     <?php endif; ?>
+                                </div>
+                                <p class="description" style="margin-top: 8px;">
+                                    <?php _e('Get your API key from', 'woo-ai-customer-service'); ?>
+                                    <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>
                                 </p>
                             </td>
                         </tr>
@@ -291,12 +320,13 @@ class Woo_AI_Chat_Admin_Settings {
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><?php _e('Test Connection', 'woo-ai-customer-service'); ?></th>
+                            <th scope="row"><?php _e('Connection Status', 'woo-ai-customer-service'); ?></th>
                             <td>
-                                <button type="button" id="test-api-connection" class="button button-secondary">
-                                    <?php _e('Test API Connection', 'woo-ai-customer-service'); ?>
+                                <p class="description" style="margin-bottom: 10px;"><?php _e('Click to verify your API key is working with Anthropic.', 'woo-ai-customer-service'); ?></p>
+                                <button type="button" id="test-api-connection" class="button button-primary" style="font-size: 14px; padding: 6px 20px;">
+                                    <?php _e('Test Connection', 'woo-ai-customer-service'); ?>
                                 </button>
-                                <span id="api-test-result" style="margin-left: 10px;"></span>
+                                <div id="api-test-result"></div>
                             </td>
                         </tr>
                     </table>
@@ -706,13 +736,59 @@ class Woo_AI_Chat_Admin_Settings {
     }
 
     /**
-     * AJAX handler for testing API connection
+     * AJAX handler to directly save API key (bypasses WordPress settings API)
      */
+    public function ajax_save_api_key() {
+        check_ajax_referer('woo_ai_chat_admin', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Permission denied'));
+        }
+
+        $api_key = isset($_POST['api_key']) ? sanitize_text_field($_POST['api_key']) : '';
+
+        if (empty($api_key)) {
+            wp_send_json_error(array('message' => 'No API key provided'));
+        }
+
+        if (strpos($api_key, 'sk-') !== 0) {
+            wp_send_json_error(array('message' => 'Invalid API key format. Must start with sk-'));
+        }
+
+        // Directly save to database with V3 encoding
+        $encoded = 'V3_' . base64_encode($api_key);
+        $result = update_option('woo_ai_chat_api_key', $encoded);
+
+        if ($result) {
+            wp_send_json_success(array('message' => 'API key saved successfully! Now click Test Connection.'));
+        } else {
+            // Check if it's already the same value
+            $current = get_option('woo_ai_chat_api_key', '');
+            if ($current === $encoded) {
+                wp_send_json_success(array('message' => 'API key is already saved. Now click Test Connection.'));
+            }
+            wp_send_json_error(array('message' => 'Failed to save API key to database'));
+        }
+    }
+
     public function ajax_test_api() {
         check_ajax_referer('woo_ai_chat_admin', 'nonce');
 
         if (!current_user_can('manage_options')) {
             wp_send_json_error(array('message' => 'Permission denied'));
+        }
+
+        // Debug: Check what's stored in the database
+        $stored_key = get_option('woo_ai_chat_api_key', '');
+        $key_info = '';
+        if (empty($stored_key)) {
+            $key_info = 'No key stored in database';
+        } elseif (strpos($stored_key, 'V3_') === 0) {
+            $key_info = 'Key format: V3 (current)';
+        } elseif (strpos($stored_key, 'WOOAI_') === 0) {
+            $key_info = 'Key format: WOOAI';
+        } else {
+            $key_info = 'Key format: legacy/unknown (first 10 chars: ' . substr($stored_key, 0, 10) . '...)';
         }
 
         $chat_api = new Woo_AI_Chat_API();
@@ -721,7 +797,8 @@ class Woo_AI_Chat_Admin_Settings {
         if ($result['success']) {
             wp_send_json_success(array('message' => $result['message']));
         } else {
-            wp_send_json_error(array('message' => $result['message']));
+            // Add debug info to error message
+            wp_send_json_error(array('message' => $result['message'] . ' [Debug: ' . $key_info . ']'));
         }
     }
 

@@ -279,7 +279,7 @@
             fetch(self.config.restUrl + '/upload', {
                 method: 'POST',
                 headers: {
-                    'X-WP-Nonce': self.nonce
+                    'X-Chat-Token': self.nonce
                 },
                 body: formData
             })
@@ -417,7 +417,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-WP-Nonce': this.nonce
+                'X-Chat-Token': this.nonce
             },
             body: JSON.stringify(payload)
         })

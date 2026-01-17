@@ -8,16 +8,51 @@
         // Initialize color pickers
         $('.woo-ai-chat-color-picker').wpColorPicker();
 
-        // API key field handling
-        var apiKeyField = $('#woo_ai_chat_api_key');
-        if (apiKeyField.length) {
-            // Clear placeholder dots when user focuses
-            apiKeyField.on('focus', function() {
-                if ($(this).val().indexOf('\u2022') !== -1) {
-                    $(this).val('');
+        // Save API Key button handler
+        $('#save-api-key').on('click', function(e) {
+            e.preventDefault();
+            var button = $(this);
+            var apiKeyField = $('#woo_ai_chat_api_key');
+            var statusDiv = $('#api-key-status');
+            var apiKey = apiKeyField.val().trim();
+
+            if (!apiKey) {
+                statusDiv.html('<span style="color: red; font-weight: bold;">✗ Please enter an API key</span>');
+                return;
+            }
+
+            if (apiKey.indexOf('sk-') !== 0) {
+                statusDiv.html('<span style="color: red; font-weight: bold;">✗ API key must start with sk-</span>');
+                return;
+            }
+
+            button.prop('disabled', true).text('Saving...');
+            statusDiv.html('<span style="color: #666;">Saving...</span>');
+
+            $.ajax({
+                url: wooAiChatAdmin.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'woo_ai_chat_save_api_key',
+                    nonce: wooAiChatAdmin.nonce,
+                    api_key: apiKey
+                },
+                success: function(response) {
+                    if (response.success) {
+                        statusDiv.html('<span style="color: green; font-weight: bold;">✓ ' + response.data.message + '</span>');
+                        apiKeyField.val(''); // Clear the field after saving
+                    } else {
+                        statusDiv.html('<span style="color: red; font-weight: bold;">✗ ' + response.data.message + '</span>');
+                    }
+                },
+                error: function() {
+                    statusDiv.html('<span style="color: red; font-weight: bold;">✗ Error saving API key</span>');
+                },
+                complete: function() {
+                    button.prop('disabled', false).text('Save API Key');
                 }
             });
-        }
+        });
 
         // Form validation
         $('form').on('submit', function() {
@@ -38,11 +73,11 @@
         $('#test-api-connection').on('click', function(e) {
             e.preventDefault();
             var button = $(this);
-            var resultSpan = $('#api-test-result');
+            var resultDiv = $('#api-test-result');
             var originalText = button.text();
 
             button.prop('disabled', true).text('Testing...');
-            resultSpan.html('').removeClass('success error');
+            resultDiv.hide().empty();
 
             $.ajax({
                 url: wooAiChatAdmin.ajaxUrl,
@@ -53,13 +88,17 @@
                 },
                 success: function(response) {
                     if (response.success) {
-                        resultSpan.html('<span class="dashicons dashicons-yes-alt" style="color: green;"></span> ' + response.data.message);
+                        resultDiv.attr('style', 'margin-top: 15px; padding: 15px 20px; border-radius: 6px; font-weight: 600; font-size: 14px; display: block; background: #d4edda; border: 2px solid #28a745; color: #155724;')
+                            .html('&#10004; <strong>SUCCESS - Connected!</strong> Your API key is working correctly.');
                     } else {
-                        resultSpan.html('<span class="dashicons dashicons-warning" style="color: red;"></span> ' + response.data.message);
+                        var errorMsg = (response.data && response.data.message) ? response.data.message : 'Unknown error';
+                        resultDiv.attr('style', 'margin-top: 15px; padding: 15px 20px; border-radius: 6px; font-weight: 600; font-size: 14px; display: block; background: #f8d7da; border: 2px solid #dc3545; color: #721c24;')
+                            .html('&#10008; <strong>FAILED:</strong> ' + errorMsg);
                     }
                 },
-                error: function() {
-                    resultSpan.html('<span class="dashicons dashicons-warning" style="color: red;"></span> Could not test connection. Please try again.');
+                error: function(xhr, status, error) {
+                    resultDiv.attr('style', 'margin-top: 15px; padding: 15px 20px; border-radius: 6px; font-weight: 600; font-size: 14px; display: block; background: #f8d7da; border: 2px solid #dc3545; color: #721c24;')
+                        .html('&#10008; <strong>ERROR:</strong> Could not connect to server. Please try again.');
                 },
                 complete: function() {
                     button.prop('disabled', false).text(originalText);

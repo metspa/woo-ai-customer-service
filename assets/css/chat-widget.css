@@ -346,20 +346,25 @@
 #woo-ai-upload-button {
     width: 40px;
     height: 40px;
-    border: none;
+    min-width: 40px;
+    min-height: 40px;
+    border: 1px solid #e5e7eb;
     border-radius: 50%;
-    background: #f3f4f6;
+    background-color: #f9fafb;
     color: #6b7280;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 #woo-ai-upload-button:hover {
-    background: #e5e7eb;
+    background-color: #e5e7eb;
+    border-color: #d1d5db;
     color: var(--woo-ai-primary-color);
 }
 
@@ -371,6 +376,10 @@
 #woo-ai-upload-button svg {
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    fill: currentColor;
+    display: block;
 }
 
 #woo-ai-message-input {
@@ -397,16 +406,20 @@
 #woo-ai-send-button {
     width: 44px;
     height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     border: none;
     border-radius: 50%;
-    background-color: var(--woo-ai-primary-color);
-    color: var(--woo-ai-secondary-color);
+    background-color: var(--woo-ai-primary-color, #2d5a27);
+    color: #ffffff;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     transition: opacity 0.2s, transform 0.1s;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 #woo-ai-send-button:hover {
@@ -426,6 +439,10 @@
 #woo-ai-send-button svg {
     width: 20px;
     height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    fill: currentColor;
+    display: block;
 }
 
 /* Message Images */

@@ -173,11 +173,14 @@ function woo_ai_chat_init() {
 add_action('plugins_loaded', 'woo_ai_chat_init');
 
 /**
- * Declare HPOS compatibility
+ * Declare WooCommerce feature compatibility (HPOS, Blocks, etc.)
  */
 add_action('before_woocommerce_init', function() {
     if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+        // High-Performance Order Storage (HPOS) compatibility
         \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+        // Cart and Checkout Blocks compatibility
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, true);
     }
 });
 

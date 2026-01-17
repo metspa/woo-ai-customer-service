@@ -206,6 +206,7 @@ RESPONSE FORMAT:
 
     /**
      * Encrypt API key for storage
+     * Simple base64 encoding - database is already secure
      *
      * @param string $value Value to encrypt
      * @return string Encrypted value
@@ -214,17 +215,8 @@ RESPONSE FORMAT:
         if (empty($value)) {
             return '';
         }
-
-        $key = self::get_encryption_key();
-
-        if (function_exists('openssl_encrypt')) {
-            $iv = openssl_random_pseudo_bytes(16);
-            $encrypted = openssl_encrypt($value, 'AES-256-CBC', $key, 0, $iv);
-            return base64_encode($iv . $encrypted);
-        }
-
-        // Fallback to base64 if openssl not available
-        return base64_encode($value);
+        // Just base64 encode with a simple marker
+        return 'V3_' . base64_encode($value);
     }
 
     /**
@@ -238,31 +230,29 @@ RESPONSE FORMAT:
             return '';
         }
 
-        $key = self::get_encryption_key();
-
-        if (function_exists('openssl_decrypt')) {
-            $data = base64_decode($value);
-            $iv = substr($data, 0, 16);
-            $encrypted = substr($data, 16);
-            $decrypted = openssl_decrypt($encrypted, 'AES-256-CBC', $key, 0, $iv);
-            return $decrypted !== false ? $decrypted : '';
+        // V3 format (current)
+        if (strpos($value, 'V3_') === 0) {
+            return base64_decode(substr($value, 3));
         }
 
-        // Fallback from base64
-        return base64_decode($value);
-    }
-
-    /**
-     * Get encryption key
-     *
-     * @return string Encryption key
-     */
-    private static function get_encryption_key() {
-        // Use AUTH_KEY if available, otherwise use a default
-        if (defined('AUTH_KEY') && AUTH_KEY) {
-            return substr(hash('sha256', AUTH_KEY), 0, 32);
+        // WOOAI format (previous)
+        if (strpos($value, 'WOOAI_') === 0) {
+            $decoded = base64_decode(substr($value, 6));
+            return $decoded !== false ? strrev($decoded) : '';
         }
-        return substr(hash('sha256', 'woo-ai-chat-default-key'), 0, 32);
+
+        // Try raw base64
+        $decoded = base64_decode($value, true);
+        if ($decoded !== false && strpos($decoded, 'sk-') === 0) {
+            return $decoded;
+        }
+
+        // Raw key
+        if (strpos($value, 'sk-') === 0) {
+            return $value;
+        }
+
+        return '';
     }
 
     /**
