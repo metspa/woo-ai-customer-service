@@ -1,0 +1,127 @@
+/**
+ * WooCommerce AI Customer Service Admin Styles
+ */
+
+.woo-ai-chat-settings {
+    max-width: 800px;
+}
+
+.woo-ai-chat-settings h1 {
+    margin-bottom: 20px;
+}
+
+.woo-ai-chat-section {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.woo-ai-chat-section h2 {
+    margin-top: 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.woo-ai-chat-section .form-table {
+    margin-top: 0;
+}
+
+.woo-ai-chat-section .form-table th {
+    padding-left: 0;
+    width: 200px;
+}
+
+.woo-ai-chat-section .form-table td {
+    padding-left: 0;
+}
+
+.woo-ai-chat-section textarea.large-text {
+    width: 100%;
+    max-width: 100%;
+}
+
+.woo-ai-chat-section input[type="text"].regular-text,
+.woo-ai-chat-section input[type="email"].regular-text,
+.woo-ai-chat-section input[type="password"].regular-text {
+    width: 100%;
+    max-width: 400px;
+}
+
+.woo-ai-chat-section input[type="number"] {
+    width: 100px;
+}
+
+.woo-ai-chat-section select {
+    min-width: 200px;
+}
+
+.woo-ai-chat-section .description {
+    margin-top: 8px;
+    color: #666;
+}
+
+/* Color picker adjustments */
+.woo-ai-chat-color-picker {
+    width: 100px !important;
+}
+
+.wp-picker-container {
+    display: inline-block;
+}
+
+/* Leads page */
+.title-count.theme-count {
+    display: inline-block;
+    vertical-align: top;
+    margin: 1px 0 0 4px;
+    padding: 0 10px;
+    min-width: 18px;
+    height: 24px;
+    border-radius: 12px;
+    background-color: #2d5a27;
+    color: #fff;
+    font-size: 13px;
+    line-height: 24px;
+    text-align: center;
+}
+
+/* Table styling */
+.wp-list-table .column-name {
+    width: 15%;
+}
+
+.wp-list-table .column-email {
+    width: 20%;
+}
+
+.wp-list-table .column-phone {
+    width: 12%;
+}
+
+.wp-list-table .column-source {
+    width: 10%;
+}
+
+/* API key status indicator */
+.dashicons-yes-alt {
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 782px) {
+    .woo-ai-chat-section .form-table th {
+        width: auto;
+        padding-bottom: 5px;
+    }
+
+    .woo-ai-chat-section input[type="text"].regular-text,
+    .woo-ai-chat-section input[type="email"].regular-text,
+    .woo-ai-chat-section input[type="password"].regular-text {
+        max-width: 100%;
+    }
+}

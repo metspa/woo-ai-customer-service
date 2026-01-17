@@ -1,0 +1,609 @@
+/**
+ * WooCommerce AI Customer Service Chat Widget Styles
+ */
+
+/* Container */
+#woo-ai-chat-container {
+    --woo-ai-primary-color: #2d5a27;
+    --woo-ai-secondary-color: #ffffff;
+    position: fixed;
+    bottom: 20px;
+    z-index: 999999;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Hidden state */
+.woo-ai-hidden {
+    display: none !important;
+}
+
+/* Chat Button */
+#woo-ai-chat-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--woo-ai-primary-color);
+    color: var(--woo-ai-secondary-color);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+#woo-ai-chat-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+#woo-ai-chat-button:focus {
+    outline: 2px solid var(--woo-ai-primary-color);
+    outline-offset: 2px;
+}
+
+#woo-ai-chat-button svg {
+    width: 28px;
+    height: 28px;
+}
+
+/* Chat Window */
+#woo-ai-chat-window {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 370px;
+    max-width: calc(100vw - 40px);
+    height: 520px;
+    max-height: calc(100vh - 100px);
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Position left variant */
+#woo-ai-chat-container[style*="left"] #woo-ai-chat-window {
+    right: auto;
+    left: 0;
+}
+
+/* Header */
+#woo-ai-chat-header {
+    padding: 16px 20px;
+    background-color: var(--woo-ai-primary-color);
+    color: var(--woo-ai-secondary-color);
+    font-weight: 600;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+#woo-ai-chat-close {
+    background: none;
+    border: none;
+    color: var(--woo-ai-secondary-color);
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+#woo-ai-chat-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Lead Form */
+#woo-ai-chat-form {
+    padding: 24px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+#woo-ai-chat-form h3 {
+    margin: 0 0 8px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+}
+
+#woo-ai-chat-form > p {
+    margin: 0 0 20px;
+    color: #666;
+    font-size: 14px;
+}
+
+#woo-ai-lead-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+#woo-ai-lead-form input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#woo-ai-lead-form input:focus {
+    outline: none;
+    border-color: var(--woo-ai-primary-color);
+    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
+}
+
+#woo-ai-lead-form input::placeholder {
+    color: #999;
+}
+
+#woo-ai-lead-form button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--woo-ai-primary-color);
+    color: var(--woo-ai-secondary-color);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 4px;
+}
+
+#woo-ai-lead-form button:hover {
+    opacity: 0.9;
+}
+
+#woo-ai-lead-form button:active {
+    transform: scale(0.98);
+}
+
+#woo-ai-lead-form button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Error message */
+.woo-ai-error {
+    background-color: #fee2e2;
+    color: #dc2626;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    display: none;
+}
+
+/* Contact alternative */
+.woo-ai-contact-alt {
+    margin-top: 24px !important;
+    text-align: center;
+    font-size: 13px !important;
+    color: #666 !important;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+}
+
+.woo-ai-contact-alt a {
+    color: var(--woo-ai-primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.woo-ai-contact-alt a:hover {
+    text-decoration: underline;
+}
+
+/* Messages Area */
+#woo-ai-chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    background-color: #f9fafb;
+}
+
+/* Individual Messages */
+.woo-ai-message {
+    max-width: 85%;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.woo-ai-message a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+.woo-ai-message a:hover {
+    text-decoration: none;
+}
+
+.woo-ai-message-user {
+    background: #e5e7eb;
+    color: #1f2937;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+.woo-ai-message-assistant {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Typing Indicator */
+.woo-ai-typing {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 20px;
+    max-width: 80px;
+}
+
+.woo-ai-typing span {
+    width: 8px;
+    height: 8px;
+    background: #9ca3af;
+    border-radius: 50%;
+    animation: woo-ai-typing 1.2s infinite ease-in-out;
+}
+
+.woo-ai-typing span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.woo-ai-typing span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes woo-ai-typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.6;
+    }
+    30% {
+        transform: translateY(-4px);
+        opacity: 1;
+    }
+}
+
+/* Image Preview Area */
+#woo-ai-image-preview {
+    padding: 8px 16px;
+    background: #f3f4f6;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+#woo-ai-preview-img {
+    max-height: 60px;
+    max-width: 100px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+#woo-ai-remove-image {
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 50%;
+    background: #ef4444;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+#woo-ai-remove-image:hover {
+    background: #dc2626;
+}
+
+/* Input Area */
+#woo-ai-chat-input {
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+/* Upload Button */
+#woo-ai-upload-button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: #f3f4f6;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+#woo-ai-upload-button:hover {
+    background: #e5e7eb;
+    color: var(--woo-ai-primary-color);
+}
+
+#woo-ai-upload-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#woo-ai-upload-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+#woo-ai-message-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 24px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    min-width: 0;
+}
+
+#woo-ai-message-input:focus {
+    border-color: var(--woo-ai-primary-color);
+    box-shadow: 0 0 0 3px rgba(45, 90, 39, 0.1);
+}
+
+#woo-ai-message-input:disabled {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+}
+
+#woo-ai-send-button {
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--woo-ai-primary-color);
+    color: var(--woo-ai-secondary-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+#woo-ai-send-button:hover {
+    opacity: 0.9;
+}
+
+#woo-ai-send-button:active {
+    transform: scale(0.95);
+}
+
+#woo-ai-send-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#woo-ai-send-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Message Images */
+.woo-ai-message-image {
+    margin-bottom: 8px;
+}
+
+.woo-ai-message-image img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.woo-ai-message-image img:hover {
+    opacity: 0.9;
+}
+
+/* Chat Error Message */
+.woo-ai-chat-error {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    #woo-ai-chat-container {
+        bottom: 0;
+        right: 0 !important;
+        left: 0 !important;
+    }
+
+    #woo-ai-chat-button {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+    }
+
+    #woo-ai-chat-window {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+    }
+
+    #woo-ai-chat-header {
+        padding: 14px 16px;
+    }
+
+    #woo-ai-chat-form {
+        padding: 16px;
+    }
+
+    #woo-ai-chat-form h3 {
+        font-size: 18px;
+    }
+
+    #woo-ai-chat-messages {
+        padding: 12px;
+    }
+
+    .woo-ai-message {
+        max-width: 90%;
+        padding: 10px 14px;
+    }
+
+    .woo-ai-message-image img {
+        max-height: 150px;
+    }
+
+    #woo-ai-chat-input {
+        padding: 10px 12px;
+        gap: 6px;
+    }
+
+    #woo-ai-upload-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    #woo-ai-upload-button svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    #woo-ai-message-input {
+        padding: 10px 14px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    #woo-ai-send-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    #woo-ai-send-button svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    #woo-ai-image-preview {
+        padding: 8px 12px;
+    }
+
+    #woo-ai-preview-img {
+        max-height: 50px;
+        max-width: 80px;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 360px) {
+    #woo-ai-chat-form {
+        padding: 12px;
+    }
+
+    #woo-ai-lead-form input {
+        padding: 10px 12px;
+    }
+
+    #woo-ai-lead-form button {
+        padding: 12px;
+    }
+}
+
+/* Scrollbar styling */
+#woo-ai-chat-messages::-webkit-scrollbar,
+#woo-ai-chat-form::-webkit-scrollbar {
+    width: 6px;
+}
+
+#woo-ai-chat-messages::-webkit-scrollbar-track,
+#woo-ai-chat-form::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#woo-ai-chat-messages::-webkit-scrollbar-thumb,
+#woo-ai-chat-form::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 3px;
+}
+
+#woo-ai-chat-messages::-webkit-scrollbar-thumb:hover,
+#woo-ai-chat-form::-webkit-scrollbar-thumb:hover {
+    background-color: #9ca3af;
+}
+
+/* Animation for window open */
+#woo-ai-chat-window {
+    animation: woo-ai-slide-up 0.3s ease-out;
+}
+
+@keyframes woo-ai-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Print styles - hide chat widget */
+@media print {
+    #woo-ai-chat-container {
+        display: none !important;
+    }
+}
